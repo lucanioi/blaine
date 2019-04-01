@@ -2,15 +2,25 @@ require 'blaine/track_builder'
 
 shared_examples :validate_connected do
   it 'track pieces connect' do
-    run_method.each_cons(2) do |track, other_track|
+    run_from_string.each_cons(2) do |track, other_track|
       expect(track.next(:clockwise)).to be other_track
     end
   end
 end
 
+shared_examples :validate_loop do
+  include_examples :validate_connected
+
+  it 'track pieces loop' do
+    track_pieces = run_from_string
+    expect(track_pieces.last.next(:clockwise)).to be track_pieces.first
+  end
+end
+
 shared_examples :validate_length do |length|
-  it 'returns an array of track pieces with the correct length' do
-    expect(run_method.size).to eq length
+  it 'correct number of track pieces' do
+    expected = length || number_of_track_chars
+    expect(run_from_string.size).to eq expected
   end
 end
 
@@ -21,30 +31,70 @@ describe Blaine::TrackBuilder do
         ''
       end
 
-      include_examples :validate_length, 0
-    end
+      include_examples :validate_length    end
 
     context 'when given a straight line' do
       def track_string
-        '----------'
+        '/---------'
       end
 
-      include_examples :validate_length, 10
+      include_examples :validate_length
       include_examples :validate_connected
     end
 
-    xcontext 'when given a corner' do
+    context 'when given a corner' do
       def track_string
-        '---------\\' \
-        '         |'
+        """\
+/--------\\
+         |
+
+        """
       end
 
-      include_examples :validate_length, 11
+      include_examples :validate_length
       include_examples :validate_connected
     end
 
-    def run_method
+    context 'when given a square loop' do
+      def track_string
+        """\
+/--------\\
+|        |
+\\--------/
+        """
+      end
+
+      include_examples :validate_length
+      include_examples :validate_loop
+    end
+
+    context 'when a track that doesn\'t start in the top left corner' do
+      def track_string
+        """\
+      /----\\
+      |    |
+/-----/    |
+|          |
+\\----------/
+        """
+      end
+
+      it 'starts at the correct point' do
+        first_track = run_from_string.first
+
+        expect(first_track.to_s).to eq '/'
+      end
+
+      include_examples :validate_length
+      include_examples :validate_loop
+    end
+
+    def run_from_string
       described_class.to_track_pieces(track_string)
+    end
+
+    def number_of_track_chars
+      track_string.chars.map(&:strip).reject(&:empty?).size
     end
   end
 end

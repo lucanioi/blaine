@@ -13,7 +13,19 @@ module Blaine
         private :new
 
         def to_matrix(track_string)
-          Matrix[*track_string.split("\n").map(&:chars)]
+          Matrix[*normalize_rows(track_string)]
+        end
+
+        def normalize_rows(track_string)
+          return [[]] if track_string.empty?
+
+          track_string.split("\n").map(&:chars).tap do |rows|
+            max_row_size = rows.max_by(&:size).size
+
+            rows.each do |row|
+              row << '' until row.size == max_row_size
+            end
+          end
         end
       end
 
@@ -22,7 +34,14 @@ module Blaine
       end
 
       def get(position)
-        matrix[*position.to_a] || raise(OutOfBounds)
+        return '' if position.row < 0 || position.column < 0
+        matrix[*position.to_a] || ''
+      end
+
+      def first_element_position
+        matrix.each_with_index do |e, row, col|
+          return [row, col] if !e.strip.empty?
+        end
       end
 
       private

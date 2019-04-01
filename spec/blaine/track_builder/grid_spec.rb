@@ -26,12 +26,18 @@ describe Blaine::TrackBuilder::Grid do
     end
 
     context 'when the given position is out of bounds' do
-      let(:out_of_bounds_error) { described_class::OutOfBounds }
+      it 'returns an empty string' do
+        actual = subject.get(P(100, -100))
 
-      it 'raises and error' do
-        out_of_bounds = proc { subject.get(P(100, 100)) }
+        expect(actual).to eq ''
+      end
+    end
 
-        expect(&out_of_bounds).to raise_error out_of_bounds_error
+   context 'when the given position is a negative value but contained' do
+      it 'returns an empty string' do
+        actual = subject.get(P(-1, -1))
+
+        expect(actual).to eq ''
       end
     end
   end
