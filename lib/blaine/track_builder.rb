@@ -12,7 +12,7 @@ module Blaine
 
     def initialize(string)
       @string = string
-      # @grid = Grid.new(string)
+      @grid = Grid.build(string)
     end
 
     def to_track_pieces
@@ -25,6 +25,6 @@ module Blaine
 
     private
 
-    attr_reader :string
+    attr_reader :string, :grid
   end
 end
