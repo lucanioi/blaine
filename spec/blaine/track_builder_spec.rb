@@ -24,6 +24,23 @@ shared_examples :validate_length do |length|
   end
 end
 
+shared_examples :validate_crossings do |*chars|
+  it 'forms a crossing correctly' do
+    first, second = run_from_string.select { |piece| chars.include? piece.to_s }
+
+    expect(first.crossing).to be second
+  end
+end
+
+shared_examples :validate_stations do |stations_count|
+  it 'creates stations' do
+    stations = run_from_string.select { |tp| tp.is_a? Blaine::Station }
+    expected = stations_count || track_string.count('S')
+
+    expect(stations.size).to eq expected
+  end
+end
+
 describe Blaine::TrackBuilder do
   describe '.from_string' do
     context 'when given an empty string' do
@@ -100,14 +117,93 @@ describe Blaine::TrackBuilder do
         """
       end
 
-      it 'forms a crossing correctly' do
-        first, second = run_from_string.select { |piece| piece.to_s == '+' }
+      include_examples :validate_length
+      include_examples :validate_loop
+      include_examples :validate_crossings, '+'
+    end
 
-        expect(first.crossing).to be second
+    context 'diagonal crossing' do
+      def track_string
+        """\
+/---\\   /---\\
+|    \\ /    |
+|     X     |
+|    / \\    |
+\\---/   \\---/
+        """
       end
 
       include_examples :validate_length
       include_examples :validate_loop
+      include_examples :validate_crossings, 'X'
+    end
+
+    # out of scope for this kata
+    xcontext 'ambiguous corners' do
+      def track_string
+        """\
+  /--------------------\\
+  |  /--------\\/----\\  |
+  \\-/         ||    |  |
+/-------------++----/  |
+|             ||       |
+\\-------------/\\-------/
+        """
+      end
+
+      include_examples :validate_length
+      include_examples :validate_loop
+      include_examples :validate_crossings, '+'
+    end
+
+    context 'track with stations' do
+      def track_string
+        """\
+      /----\\
+      |    |
+/-----/    S
+|          |
+\\---S--\\ /-/
+       | |
+       | \\-\\
+       |    \\-----\\
+       \\          |
+        \\         /
+         S       /
+          \\     S
+           \\   /
+            \\-/
+        """
+      end
+
+      include_examples :validate_length
+      include_examples :validate_loop
+      include_examples :validate_stations
+    end
+
+    context 'crossing stations' do
+      def track_string
+        """\
+/---\\   /---\\
+|    \\ /    |
+|     S     |
+|    / \\    |
+|   /   \\---/
+|   |
+|   \\------\\
+|          |
+\\-----\\    |
+      |    |
+/-----S----/
+|     |
+\\-----/
+        """
+      end
+
+      include_examples :validate_length, 74
+      include_examples :validate_loop
+      include_examples :validate_stations, 4
+      include_examples :validate_crossings, 'S'
     end
 
     def run_from_string

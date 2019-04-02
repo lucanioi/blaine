@@ -1,11 +1,58 @@
 require_relative 'track_piece'
+require_relative 'station'
 require_relative 'track_builder/grid'
 require_relative 'track_builder/position'
+require_relative 'track_builder/direction'
 
 module Blaine
   class TrackBuilder
+    InvalidTrackChar = Class.new(StandardError)
+
     TRACK_CHARS = %w[/ \\ - | + X S].freeze
-    CROSSING_CHARS = %w[+ X]
+    CROSSING_CHARS = %w[+ X S].freeze
+    DIAGONAL_CHARS = %w[/ \\].freeze
+    STATION_CHARS = %w[S].freeze
+
+    DIRECTIONAL_CHANGES = {
+      straight: [
+        ['', '/'],
+        ['-', '-'],
+        ['|', '|'],
+        ['+', '+'],
+        ['X', 'X'],
+        ['\\', '|'],
+        ['\\', '-'],
+        ['/', '-'],
+        ['/', '|'],
+        ['-', '+'],
+        ['+', '-'],
+        ['|', '+'],
+        ['+', '|'],
+        ['X', '\\'],
+        ['\\', 'X'],
+        ['X', '/'],
+        ['/', 'X'],
+        ['S', '-'],
+        ['-', 'S'],
+        ['S', '|'],
+        ['|', 'S'],
+        ['S', '\\'],
+        ['\\', 'S'],
+        ['S', '/'],
+        ['/', 'S'],
+      ],
+      straight_or_soft_turn: [
+        ['/', '/'], ['\\', '\\']
+      ],
+      right: [
+        ['-', '\\'],
+        ['|', '/']
+      ],
+      left: [
+        ['-', '/'],
+        ['|', '\\']
+      ]
+    }
 
     class << self
       def to_track_pieces(track_string)
@@ -19,7 +66,7 @@ module Blaine
       @string = string
       @grid = Grid.build(string)
       @previous_position = nil
-      @direction = Direction.new(0, 1)
+      @current_direction = Direction.new(0, 1)
       @track_pieces = []
     end
 
@@ -27,7 +74,7 @@ module Blaine
       return track_pieces if string.empty?
 
       until finished?
-        # puts("char: #{current_char} --- pos: #{current_position.to_a} dir: #{direction.to_a}")
+        puts("char: #{current_char} --- pos: #{current_position.to_a} dir: #{current_direction.to_a}")
         @track_pieces << create_track_piece
         move_forward!
       end
@@ -43,30 +90,32 @@ module Blaine
       :starting_position,
       :current_position,
       :previous_position,
-      :direction,
+      :current_direction,
       :track_pieces
     ]
 
     def move_forward!
-      @direction = find_next_direction
+      @current_direction = find_next_direction
       @previous_position = current_position
-      @current_position = current_position + direction
+      @current_position = current_position + current_direction
     end
 
     def create_track_piece
-      TrackPiece.new(current_char).tap do |track_piece|
+      create_track_piece_from_current_char.tap do |track_piece|
         form_crossing_if_needed(track_piece)
       end
     end
 
     def possible_next_directions
       case [previous_char, current_char]
-      when ['', '/'], ['-', '-'], ['\\', '|'], ['\\', '-'], ['/', '-'], ['/', '|'], ['|', '|'], ['-', '+'], ['+', '-'], ['|', '+'], ['+', '|']
-        [direction.dup]
-      when ['-', '\\'], ['|', '/']
-        [direction.right, direction.right.right]
-      when ['-', '/'], ['|', '\\']
-        [direction.left, direction.left.left]
+      when *DIRECTIONAL_CHANGES[:straight]
+        [current_direction.dup]
+      when *DIRECTIONAL_CHANGES[:right]
+        [current_direction.right, current_direction.right.right]
+      when *DIRECTIONAL_CHANGES[:straight_or_soft_turn]
+        [current_direction.dup, current_direction.left, current_direction.right]
+      when *DIRECTIONAL_CHANGES[:left]
+        [current_direction.left, current_direction.left.left]
       else
         []
       end
@@ -77,7 +126,7 @@ module Blaine
         track_char? get_char(current_position + direction)
       end
 
-      next_direction || dead_end! && direction
+      next_direction || dead_end! && current_direction
     end
 
     def form_crossing_if_needed(track_piece)
@@ -96,7 +145,18 @@ module Blaine
           piece.connect(next_piece)
         end
 
-        make_loop if starting_position == current_position
+        loop_tracks if starting_position == current_position
+      end
+    end
+
+    def create_track_piece_from_current_char
+      case current_char
+      when *STATION_CHARS
+        Station.new(current_char)
+      when *TRACK_CHARS
+        TrackPiece.new(current_char)
+      else
+        raise InvalidTrackChar
       end
     end
 
@@ -128,7 +188,7 @@ module Blaine
       Position.new(*grid.first_element_position)
     end
 
-    def make_loop
+    def loop_tracks
       track_pieces.last.connect(track_pieces.first)
     end
 
