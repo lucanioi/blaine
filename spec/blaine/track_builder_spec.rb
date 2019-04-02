@@ -26,9 +26,13 @@ end
 
 shared_examples :validate_crossings do |*chars|
   it 'forms a crossing correctly' do
-    first, second = run_from_string.select { |piece| chars.include? piece.to_s }
+    positions = run_from_string
+                  .select { |tp| chars.include? tp.to_s }
+                  .group_by { |tp| tp.position.to_a }
 
-    expect(first.crossing).to be second
+    positions.each do |_position, (first, second)|
+      expect(first.crossing).to be second
+    end
   end
 end
 
@@ -206,7 +210,7 @@ describe Blaine::TrackBuilder do
       include_examples :validate_crossings, 'S'
     end
 
-    xcontext 'complex track' do
+    context 'complex track' do
       def track_string
 """\
                                 /------------\\

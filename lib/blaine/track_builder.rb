@@ -41,12 +41,18 @@ module Blaine
         ['S', '/'],
         ['/', 'S'],
       ],
-      straight_or_soft_turn: [
+      straight_or_half_turn: [
         ['/', '/'], ['\\', '\\']
       ],
       right: [
         ['-', '\\'],
         ['|', '/']
+      ],
+      half_right: [
+        ['+', '/']
+      ],
+      half_left: [
+        ['+', '\\']
       ],
       left: [
         ['-', '/'],
@@ -110,12 +116,16 @@ module Blaine
       case [previous_char, current_char]
       when *DIRECTIONAL_CHANGES[:straight]
         [current_direction.dup]
+      when *DIRECTIONAL_CHANGES[:straight_or_half_turn]
+        [current_direction.dup, current_direction.left, current_direction.right]
       when *DIRECTIONAL_CHANGES[:right]
         [current_direction.right, current_direction.right.right]
-      when *DIRECTIONAL_CHANGES[:straight_or_soft_turn]
-        [current_direction.dup, current_direction.left, current_direction.right]
+      when *DIRECTIONAL_CHANGES[:half_right]
+        [current_direction.right]
       when *DIRECTIONAL_CHANGES[:left]
         [current_direction.left, current_direction.left.left]
+      when *DIRECTIONAL_CHANGES[:half_left]
+        [current_direction.left]
       else
         []
       end
