@@ -1,8 +1,10 @@
 require 'blaine/track_piece'
+require 'blaine/position'
 
 describe Blaine::TrackPiece do
-  subject { described_class.new('-') }
-  let(:other_track) { described_class.new('-') }
+  subject { described_class.new('-', position) }
+  let(:position) { Blaine::Position.new(0, 0) }
+  let(:other_track) { described_class.new('-', position) }
 
   describe '#next, #connect' do
     it 'is a null track piece by default' do
@@ -60,7 +62,7 @@ describe Blaine::TrackPiece do
     end
 
     context 'when there is already a crossing formed' do
-      let(:another_track) { described_class.new('-') }
+      let(:another_track) { described_class.new('-', position) }
 
       it 'raises an error' do
         invalid_crossing = proc { subject.form_crossing(another_track) }

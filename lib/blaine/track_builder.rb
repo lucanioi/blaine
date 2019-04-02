@@ -152,9 +152,9 @@ module Blaine
     def create_track_piece_from_current_char
       case current_char
       when *STATION_CHARS
-        Station.new(current_char)
+        Station.new(current_char, current_position)
       when *TRACK_CHARS
-        TrackPiece.new(current_char)
+        TrackPiece.new(current_char, current_position)
       else
         raise InvalidTrackChar
       end

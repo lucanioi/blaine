@@ -43,6 +43,6 @@ describe Blaine::TrackBuilder::Grid do
   end
 
   def P(row, column)
-    Blaine::TrackBuilder::Position.new(row, column)
+    Blaine::Position.new(row, column)
   end
 end

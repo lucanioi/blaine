@@ -1,6 +1,6 @@
-require 'blaine/track_builder/position'
+require 'blaine/position'
 
-describe Blaine::TrackBuilder::Position do
+describe Blaine::Position do
   subject { described_class.new(3, 5) }
   let(:other_position) { described_class.new(-1, 9) }
 

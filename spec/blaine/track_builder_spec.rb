@@ -206,6 +206,40 @@ describe Blaine::TrackBuilder do
       include_examples :validate_crossings, 'S'
     end
 
+    xcontext 'complex track' do
+      def track_string
+"""\
+                                /------------\\
+/-------------\\                /             |
+|             |               /              S
+|             |              /               |
+|        /----+--------------+------\\        |
+\\       /     |              |      |        |
+ \\      |     \\              |      |        |
+ |      |      \\-------------+------+--------+---\\
+ |      |                    |      |        |   |
+ \\------+--------------------+------/        /   |
+        |                    |              /    |
+        \\------S-------------+-------------/     |
+                             |                   |
+/-------------\\              |                   |
+|             |              |             /-----+----\\
+|             |              |             |     |     \\
+\\-------------+--------------+-----S-------+-----/      \\
+              |              |             |             \\
+              |              |             |             |
+              |              \\-------------+-------------/
+              |                            |
+              \\----------------------------/
+"""
+      end
+
+      include_examples :validate_length
+      include_examples :validate_loop
+      include_examples :validate_stations
+      include_examples :validate_crossings, '+'
+    end
+
     def run_from_string
       described_class.to_track_pieces(track_string)
     end

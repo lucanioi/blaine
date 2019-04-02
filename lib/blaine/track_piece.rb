@@ -4,10 +4,11 @@ module Blaine
   class TrackPiece
     CrossingAlreadyFormed = Class.new(StandardError)
 
-    attr_reader :crossing
+    attr_reader :crossing, :position
 
-    def initialize(char)
+    def initialize(char, position)
       @char = char
+      @position = position
       @occupied = false
     end
 
