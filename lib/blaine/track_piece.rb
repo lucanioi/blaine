@@ -4,6 +4,8 @@ module Blaine
   class TrackPiece
     CrossingAlreadyFormed = Class.new(StandardError)
 
+    attr_reader :crossing
+
     def initialize(char)
       @char = char
       @occupied = false
@@ -65,7 +67,7 @@ module Blaine
     private
 
     attr_accessor :next_track
-    attr_reader :crossing, :char
+    attr_reader :char
 
     def free?
       has_crossing? ? !occupied? && !crossing.occupied? : !occupied?

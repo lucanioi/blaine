@@ -5,6 +5,7 @@ require_relative 'track_builder/position'
 module Blaine
   class TrackBuilder
     TRACK_CHARS = %w[/ \\ - | + X S].freeze
+    CROSSING_CHARS = %w[+ X]
 
     class << self
       def to_track_pieces(track_string)
@@ -26,8 +27,8 @@ module Blaine
       return track_pieces if string.empty?
 
       until finished?
-        # puts("char: #{current_char} --- pos: #{current_position.to_a}")
-        @track_pieces << TrackPiece.new(current_char)
+        # puts("char: #{current_char} --- pos: #{current_position.to_a} dir: #{direction.to_a}")
+        @track_pieces << create_track_piece
         move_forward!
       end
 
@@ -46,23 +47,29 @@ module Blaine
       :track_pieces
     ]
 
-    def possible_next_directions
-      case [previous_char, current_char]
-      when ['', '/'], ['-', '-'], ['\\', '|'], ['/', '-'], ['|', '|']
-        [direction.dup]
-      when ['-', '\\'], ['|', '/']
-        [direction.right, direction.right.right]
-      when ['-', '/']
-        [direction.left, direction.left.left]
-      else
-        []
-      end
-    end
-
     def move_forward!
       @direction = find_next_direction
       @previous_position = current_position
       @current_position = current_position + direction
+    end
+
+    def create_track_piece
+      TrackPiece.new(current_char).tap do |track_piece|
+        form_crossing_if_needed(track_piece)
+      end
+    end
+
+    def possible_next_directions
+      case [previous_char, current_char]
+      when ['', '/'], ['-', '-'], ['\\', '|'], ['\\', '-'], ['/', '-'], ['/', '|'], ['|', '|'], ['-', '+'], ['+', '-'], ['|', '+'], ['+', '|']
+        [direction.dup]
+      when ['-', '\\'], ['|', '/']
+        [direction.right, direction.right.right]
+      when ['-', '/'], ['|', '\\']
+        [direction.left, direction.left.left]
+      else
+        []
+      end
     end
 
     def find_next_direction
@@ -71,6 +78,16 @@ module Blaine
       end
 
       next_direction || dead_end! && direction
+    end
+
+    def form_crossing_if_needed(track_piece)
+      return unless crossing_char?(current_char)
+
+      if other_piece = crossings[current_position.to_a]
+        track_piece.form_crossing(other_piece)
+      else
+        crossings[current_position.to_a] = track_piece
+      end
     end
 
     def connected_track_pieces
@@ -85,6 +102,10 @@ module Blaine
 
     def track_char?(char)
       TRACK_CHARS.include?(char)
+    end
+
+    def crossing_char?(char)
+      CROSSING_CHARS.include?(char)
     end
 
     def current_char
@@ -113,6 +134,10 @@ module Blaine
 
     def get_char(position)
       grid.get(position)
+    end
+
+    def crossings
+      @crossings ||= {}
     end
 
     def finished?

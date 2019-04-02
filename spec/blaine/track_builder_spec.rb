@@ -19,7 +19,7 @@ end
 
 shared_examples :validate_length do |length|
   it 'correct number of track pieces' do
-    expected = length || number_of_track_chars
+    expected = length || number_of_track_chars + number_of_crossing_chars
     expect(run_from_string.size).to eq expected
   end
 end
@@ -89,12 +89,41 @@ describe Blaine::TrackBuilder do
       include_examples :validate_loop
     end
 
+    context 'when a track contains a crossing' do
+      def track_string
+        """\
+      /----\\
+      |    |
+/-----+----/
+|     |
+\\-----/
+        """
+      end
+
+      it 'forms a crossing correctly' do
+        first, second = run_from_string.select { |piece| piece.to_s == '+' }
+
+        expect(first.crossing).to be second
+      end
+
+      include_examples :validate_length
+      include_examples :validate_loop
+    end
+
     def run_from_string
       described_class.to_track_pieces(track_string)
     end
 
     def number_of_track_chars
-      track_string.chars.map(&:strip).reject(&:empty?).size
+      all_track_chars.size
+    end
+
+    def number_of_crossing_chars
+      all_track_chars.select { |char| ['+', 'X'].include?(char) }.size
+    end
+
+    def all_track_chars
+      track_string.chars.map(&:strip).reject(&:empty?)
     end
   end
 end
