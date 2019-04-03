@@ -1,6 +1,6 @@
 require 'blaine_is_a_pain'
 
-xdescribe 'Blaine is a Pain' do
+describe 'Blaine is a Pain' do
   let(:train_track) do
 """\
                                 /------------\\

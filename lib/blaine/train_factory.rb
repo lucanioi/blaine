@@ -30,9 +30,9 @@ module Blaine
 
     def get_direction(string)
       case string
-      when /\A[A-Z].*\z/
+      when /\A.*[A-Z]\z/
         :clockwise
-      when /\A.+[A-Z]\z/
+      when /\A[A-Z].+\z/
         :counterclockwise
       end
     end

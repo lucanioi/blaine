@@ -10,7 +10,7 @@ describe Blaine::Station do
       allow(train).to receive(:express?) { false }
     end
 
-    it 'returns wait duration corresponding to the train\'s length' do
+    it 'returns wait duration corresponding to the length of train' do
       allow(train).to receive(:length) { 10 }
 
       expect(subject.wait_duration(train)).to eq 10

@@ -5,7 +5,7 @@ require 'shared_examples/track_builder_tests'
 describe Blaine::TrackBuilder do
   let(:build_error) { described_class::CannotBuildTrack }
 
-  describe '.build' do
+  describe '.from_string' do
     context 'when given an empty string' do
       def track_string
         ''
@@ -45,7 +45,7 @@ describe Blaine::TrackBuilder do
     end
 
     def run_method
-      described_class.build(track_string)
+      described_class.from_string(track_string)
     end
   end
 

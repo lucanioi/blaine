@@ -14,24 +14,24 @@ describe Blaine::TrainFactory do
       include_examples :direction, :clockwise
     end
 
-    context 'string: Bbbb' do
-      let(:string) { 'Bbbb' }
+    context 'string: bbbB' do
+      let(:string) { 'bbbB' }
 
       include_examples :length, 4
       include_examples :to_s, 'B'
       include_examples :direction, :clockwise
     end
 
-    context 'string: bbbbbB' do
-      let(:string) { 'bbbbbB' }
+    context 'string: Bbbbbb' do
+      let(:string) { 'Bbbbbb' }
 
       include_examples :length, 6
       include_examples :to_s, 'B'
       include_examples :direction, :counterclockwise
     end
 
-    context 'string: Xxxx' do
-      let(:string) { 'Xxxx' }
+    context 'string: xxxX' do
+      let(:string) { 'xxxX' }
 
       include_examples :length, 4
       include_examples :to_s, 'X'

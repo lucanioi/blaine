@@ -62,7 +62,7 @@ module Blaine
     }
 
     class << self
-      def build(track_string)
+      def from_string(track_string)
         track_pieces = to_track_pieces(track_string)
         raise CannotBuildTrack if track_pieces.empty?
         raise CannotBuildTrack unless loops?(track_pieces)

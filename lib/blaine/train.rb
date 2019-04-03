@@ -1,6 +1,6 @@
 module Blaine
   class Train
-    attr_reader :length, :direction
+    attr_reader :length, :direction, :attached_track_pieces
 
     def initialize(char:, length:, direction:, express: false)
       @char = char
@@ -38,8 +38,6 @@ module Blaine
     end
 
     private
-
-    attr_reader :attached_track_pieces
 
     def register_wait_duration(track_piece)
       @wait_duration = track_piece.wait_duration(self)

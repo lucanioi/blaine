@@ -41,9 +41,11 @@ describe Blaine::Train do
 
       subject.attach_to_track_piece(track_pieces.first)
 
+      expect(track_pieces[-1]).to_not be_attached
       expect(track_pieces[0]).to be_attached
       expect(track_pieces[1]).to be_attached
       expect(track_pieces[2]).to be_attached
+      expect(track_pieces[3]).to_not be_attached
       end
     end
   end
@@ -93,7 +95,7 @@ describe Blaine::Train do
         expect(track_pieces[-3]).to_not be_attached
       end
 
-      it 'moves after as many times as the length of the train' do
+      it 'moves after as many times as the length of train' do
         track_pieces = create_looped_track_pieces_with_station(5)
         subject.attach_to_track_piece(track_pieces.first)
 
