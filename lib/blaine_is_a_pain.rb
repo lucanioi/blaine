@@ -16,7 +16,6 @@ def train_crash(track_str, a_train_str, a_train_pos, b_train_str, b_train_pos, l
 
   until time >= limit
     time += 1
-    binding.pry if time == 516
     trains.map(&:move_forward)
   end
 
