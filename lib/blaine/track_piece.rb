@@ -11,13 +11,20 @@ module Blaine
     def initialize(char, position)
       @char = char
       @position = position
-      @occupied = false
+      @attached = false
     end
 
     def next(direction)
       case direction
       when :clockwise then next_track
       when :counterclockwise then previous_track
+      end
+    end
+
+    def previous(direction)
+      case direction
+      when :clockwise then previous_track
+      when :counterclockwise then next_track
       end
     end
 
@@ -43,25 +50,25 @@ module Blaine
       next_track == other || previous_track == other
     end
 
-    def occupy
+    def attach
       if free?
-        @occupied = true
+        @attached = true
       else
         raise Crash
       end
     end
 
-    def unoccupy
-      @occupied = false
+    def unattach
+      @attached = false
+    end
+
+    def attached?
+      @attached
     end
 
     protected
 
     attr_accessor :previous_track
-
-    def occupied?
-      @occupied
-    end
 
     def crossing=(other)
       if has_crossing?
@@ -81,7 +88,7 @@ module Blaine
     attr_reader :char
 
     def free?
-      has_crossing? ? !occupied? && !crossing.occupied? : !occupied?
+      has_crossing? ? !attached? && !crossing.attached? : !attached?
     end
   end
 end

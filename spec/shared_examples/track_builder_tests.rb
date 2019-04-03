@@ -1,4 +1,3 @@
-
 shared_examples :validate_connected do
   it 'track pieces connect' do
     run_method.each_cons(2) do |track, other_track|

@@ -29,24 +29,24 @@ describe Blaine::TrackPiece do
     end
   end
 
-  describe '#occupy' do
-    it 'returns true if unoccupied' do
-      expect(subject.occupy).to be true
+  describe '#attach' do
+    it 'returns true if unattached' do
+      expect(subject.attach).to be true
     end
 
-    it 'raises a train crash error if already occupied' do
-      subject.occupy
+    it 'raises a train crash error if already attached' do
+      subject.attach
 
-      expect { subject.occupy }.to raise_error Blaine::Crash
+      expect { subject.attach }.to raise_error Blaine::Crash
     end
   end
 
-  describe '#unoccupy' do
+  describe '#unattach' do
     it 'makes the track piece occupiable again' do
-      subject.occupy
-      subject.unoccupy
+      subject.attach
+      subject.unattach
 
-      expect(subject.occupy).to be true
+      expect(subject.attach).to be true
     end
   end
 
@@ -86,10 +86,10 @@ describe Blaine::TrackPiece do
       subject.form_crossing(other_track)
     end
 
-    it 'makes the given track unavailble to occupy while itself is occupied' do
-      subject.occupy
+    it 'makes the given track unavailble to attach while itself is attached' do
+      subject.attach
 
-      expect { other_track.occupy }.to raise_error Blaine::Crash
+      expect { other_track.attach }.to raise_error Blaine::Crash
     end
 
     context 'when there is already a crossing formed' do
