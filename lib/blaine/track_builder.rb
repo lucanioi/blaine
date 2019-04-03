@@ -1,4 +1,5 @@
 require_relative 'track_piece'
+require_relative 'track'
 require_relative 'station'
 require_relative 'track_builder/grid'
 require_relative 'track_builder/position'
@@ -6,7 +7,7 @@ require_relative 'track_builder/direction'
 
 module Blaine
   class TrackBuilder
-    InvalidTrackChar = Class.new(StandardError)
+    CannotBuildTrack = Class.new(StandardError)
 
     TRACK_CHARS = %w[/ \\ - | + X S].freeze
     CROSSING_CHARS = %w[+ X S].freeze
@@ -61,11 +62,23 @@ module Blaine
     }
 
     class << self
+      def build(track_string)
+        track_pieces = to_track_pieces(track_string)
+        raise CannotBuildTrack if track_pieces.empty?
+        raise CannotBuildTrack unless loops?(track_pieces)
+
+        Track.new(track_pieces)
+      end
+
       def to_track_pieces(track_string)
         new(track_string).to_track_pieces
       end
 
       private :new
+
+      def loops?(track_pieces)
+        track_pieces.first.connected?(track_pieces.last)
+      end
     end
 
     def initialize(string)
@@ -80,7 +93,6 @@ module Blaine
       return track_pieces if string.empty?
 
       until finished?
-        puts("char: #{current_char} --- pos: #{current_position.to_a} dir: #{current_direction.to_a}")
         @track_pieces << create_track_piece
         move_forward!
       end
@@ -127,7 +139,7 @@ module Blaine
       when *DIRECTIONAL_CHANGES[:half_left]
         [current_direction.left]
       else
-        []
+        raise CannotBuildTrack
       end
     end
 
@@ -166,7 +178,7 @@ module Blaine
       when *TRACK_CHARS
         TrackPiece.new(current_char, current_position)
       else
-        raise InvalidTrackChar
+        raise CannotBuildTrack
       end
     end
 

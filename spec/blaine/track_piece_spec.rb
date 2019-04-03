@@ -50,6 +50,37 @@ describe Blaine::TrackPiece do
     end
   end
 
+  describe '#wait_duration' do
+    let(:train) { double(:train) }
+
+    it 'returns zero' do
+      expect(subject.wait_duration(train)).to eq 0
+    end
+  end
+
+  describe '#connected?' do
+    context 'when given a track piece that it is connected to' do
+      it 'returns true' do
+        subject.connect(other_track)
+
+        expect(subject.connected?(other_track)).to be true
+        expect(other_track.connected?(subject)).to be true
+      end
+    end
+
+    context 'when given a track piece that it is not connected to' do
+      it 'returns false' do
+        expect(subject.connected?(other_track)).to be false
+      end
+    end
+
+    context 'when given itself' do
+      it 'returns false' do
+        expect(subject.connected?(subject)).to be false
+      end
+    end
+  end
+
   describe '#form_crossing' do
     before do
       subject.form_crossing(other_track)

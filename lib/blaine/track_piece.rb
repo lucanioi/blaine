@@ -4,6 +4,8 @@ module Blaine
   class TrackPiece
     CrossingAlreadyFormed = Class.new(StandardError)
 
+    WAIT_DURATION = 0
+
     attr_reader :crossing, :position
 
     def initialize(char, position)
@@ -31,6 +33,14 @@ module Blaine
     def form_crossing(other)
       self.crossing = other
       other.crossing = self
+    end
+
+    def wait_duration(_train)
+      WAIT_DURATION
+    end
+
+    def connected?(other)
+      next_track == other || previous_track == other
     end
 
     def occupy

@@ -1,58 +1,62 @@
 require 'blaine/track_builder'
-
-shared_examples :validate_connected do
-  it 'track pieces connect' do
-    run_from_string.each_cons(2) do |track, other_track|
-      expect(track.next(:clockwise)).to be other_track
-    end
-  end
-end
-
-shared_examples :validate_loop do
-  include_examples :validate_connected
-
-  it 'track pieces loop' do
-    track_pieces = run_from_string
-    expect(track_pieces.last.next(:clockwise)).to be track_pieces.first
-  end
-end
-
-shared_examples :validate_length do |length|
-  it 'correct number of track pieces' do
-    expected = length || number_of_track_chars + number_of_crossing_chars
-    expect(run_from_string.size).to eq expected
-  end
-end
-
-shared_examples :validate_crossings do |*chars|
-  it 'forms a crossing correctly' do
-    positions = run_from_string
-                  .select { |tp| chars.include? tp.to_s }
-                  .group_by { |tp| tp.position.to_a }
-
-    positions.each do |_position, (first, second)|
-      expect(first.crossing).to be second
-    end
-  end
-end
-
-shared_examples :validate_stations do |stations_count|
-  it 'creates stations' do
-    stations = run_from_string.select { |tp| tp.is_a? Blaine::Station }
-    expected = stations_count || track_string.count('S')
-
-    expect(stations.size).to eq expected
-  end
-end
+require 'blaine/track'
+require 'shared_examples/track_builder_tests'
 
 describe Blaine::TrackBuilder do
+  let(:build_error) { described_class::CannotBuildTrack }
+
+  describe '.build' do
+    context 'when given an empty string' do
+      def track_string
+        ''
+      end
+
+      it 'raises an error' do
+        expect { run_method }.to raise_error build_error
+      end
+    end
+
+    context 'when given a well-formed track string' do
+      def track_string
+        """\
+/--------\\
+|        |
+\\--------/
+        """
+      end
+
+      it 'returns a track object' do
+        expect(run_method).to be_an_instance_of Blaine::Track
+      end
+    end
+
+    context 'when given a track string that doesn\'t loop' do
+      def track_string
+        """\
+/--------\\
+|
+\\--------/
+        """
+      end
+
+      it 'raises an error' do
+        expect { run_method }.to raise_error build_error
+      end
+    end
+
+    def run_method
+      described_class.build(track_string)
+    end
+  end
+
   describe '.from_string' do
     context 'when given an empty string' do
       def track_string
         ''
       end
 
-      include_examples :validate_length    end
+      include_examples :validate_length
+    end
 
     context 'when given a straight line' do
       def track_string
@@ -101,7 +105,7 @@ describe Blaine::TrackBuilder do
       end
 
       it 'starts at the correct point' do
-        first_track = run_from_string.first
+        first_track = run_method.first
 
         expect(first_track.to_s).to eq '/'
       end
@@ -244,7 +248,7 @@ describe Blaine::TrackBuilder do
       include_examples :validate_crossings, '+'
     end
 
-    def run_from_string
+    def run_method
       described_class.to_track_pieces(track_string)
     end
 

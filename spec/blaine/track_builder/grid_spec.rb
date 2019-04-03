@@ -41,8 +41,4 @@ describe Blaine::TrackBuilder::Grid do
       end
     end
   end
-
-  def P(row, column)
-    Blaine::Position.new(row, column)
-  end
 end
