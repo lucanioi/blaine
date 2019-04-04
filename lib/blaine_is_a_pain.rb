@@ -1,6 +1,4 @@
-require 'blaine/track_builder'
-require 'blaine/train_factory'
-require 'blaine/crash'
+require_relative 'blaine'
 
 def train_crash(track_str, a_train_str, a_train_pos, b_train_str, b_train_pos, limit)
   track_pieces = Blaine::TrackBuilder.to_track_pieces(track_str)

@@ -21,9 +21,10 @@ module Blaine
 
     def move_forward
       return false if wait?
-      next_track_piece = track_piece_at_engine.next(direction)
-      release_tracks
-      attach_to_track_piece(next_track_piece)
+      next_track_piece.tap do |next_tp|
+        release_tracks
+        attach_to_track_piece(next_tp)
+      end
       true
     ensure
       decrement_wait_duration
@@ -38,6 +39,10 @@ module Blaine
     end
 
     private
+
+    def next_track_piece
+      track_piece_at_engine.next(direction)
+    end
 
     def register_wait_duration(track_piece)
       @wait_duration = track_piece.wait_duration(self)

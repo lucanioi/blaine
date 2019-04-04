@@ -6,3 +6,14 @@ rescue LoadError
 end
 
 task default: :spec
+
+task :script do
+  require 'pathname'
+  root = Pathname.new(File.expand_path(__dir__))
+  load "#{root}/script.rb"
+end
+
+task :pry do
+  require File.join(__dir__, 'lib/blaine')
+  Blaine.pry
+end
