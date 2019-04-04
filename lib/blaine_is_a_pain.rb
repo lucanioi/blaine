@@ -11,7 +11,6 @@ def train_crash(track_str, a_train_str, a_train_pos, b_train_str, b_train_pos, l
   track.add_train(b_train, at: b_train_pos)
 
   trains = [a_train, b_train]
-  time = 0
 
   until time >= limit
     time += 1
