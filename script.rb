@@ -1,29 +1,12 @@
 require_relative 'lib/blaine'
 
-def print_track(track_pieces, *trains)
-  matrix = Blaine::Track.new(track_pieces).to_s.split("\n").map(&:chars)
-
-  trains.each do |train|
-    engine, *carriages = train.attached_track_pieces
-    break unless engine
-    matrix[engine.position.row][engine.position.column] = train.to_s
-
-    carriages.each do |carriage|
-      matrix[carriage.position.row][carriage.position.column] = train.to_s.downcase
-    end
-  end
-
-  matrix.map(&:join).join("\n")
-end
-
 def train_crash(track_str, a_train_str, a_train_pos, b_train_str, b_train_pos, limit)
-  track_pieces = Blaine::TrackBuilder.to_track_pieces(track_str)
-
+  track = Blaine::TrackBuilder.from_string(track_str)
   a_train = Blaine::TrainFactory.from_string(a_train_str)
   b_train = Blaine::TrainFactory.from_string(b_train_str)
 
-  a_train.attach_to_track_piece track_pieces[a_train_pos]
-  b_train.attach_to_track_piece track_pieces[b_train_pos]
+  track.add_train(a_train, at: a_train_pos)
+  track.add_train(b_train, at: b_train_pos)
 
   trains = [a_train, b_train]
   time = 0
@@ -35,7 +18,7 @@ def train_crash(track_str, a_train_str, a_train_pos, b_train_str, b_train_pos, l
     sleep 0.05
     puts `clear`
     puts "time passed: #{time}"
-    puts print_track(track_pieces, *trains)
+    puts track.to_s
   end
 
   -1
@@ -68,9 +51,9 @@ track = """\
               \\----------------------------/
 """
 
-train_a = 'Aaaaaaaaaaaaaaaaaaaaa'
+train_a = 'Aaaa'
 train_a_position = 147
-train_b = 'Xxx'
+train_b = 'Bbbbbbbbbbb'
 train_b_position = 288
 limit = 1000
 
