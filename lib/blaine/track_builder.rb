@@ -1,8 +1,8 @@
 require_relative 'track_piece'
 require_relative 'track'
 require_relative 'station'
+require_relative 'position'
 require_relative 'track_builder/grid'
-require_relative 'track_builder/position'
 require_relative 'track_builder/direction'
 
 module Blaine

@@ -1,4 +1,4 @@
-require_relative 'position'
+require_relative '../position'
 
 module Blaine
   class TrackBuilder
