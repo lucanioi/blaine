@@ -1,6 +1,8 @@
 require_relative 'blaine'
 
 def train_crash(track_str, a_train_str, a_train_pos, b_train_str, b_train_pos, limit)
+  time = 0
+
   track = Blaine::TrackBuilder.from_string(track_str)
   a_train = Blaine::TrainFactory.from_string(a_train_str)
   b_train = Blaine::TrainFactory.from_string(b_train_str)
