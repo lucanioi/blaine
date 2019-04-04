@@ -25,7 +25,7 @@ module Blaine
         release_tracks
         attach_to_track_piece(next_tp)
       end
-      true
+      moved
     ensure
       decrement_wait_duration
     end
@@ -49,6 +49,7 @@ module Blaine
     end
 
     def wait?
+      return false unless moved?
       wait_duration > 0
     end
 
@@ -67,6 +68,14 @@ module Blaine
 
     def track_piece_at_engine
       attached_track_pieces.first
+    end
+
+    def moved?
+      !!@moved
+    end
+
+    def moved
+      @moved = true
     end
   end
 end

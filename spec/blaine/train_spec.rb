@@ -15,17 +15,18 @@ describe Blaine::Train do
   let(:direction) { :clockwise }
   let(:express) { false }
 
+  let(:track_pieces) { create_looped_track_pieces(5) }
+
   describe '#attach_to_track_piece' do
     it 'occupies the given track piece' do
-      track_piece = create_looped_track_pieces(5).first
+      track_piece = track_pieces.first
+
       subject.attach_to_track_piece(track_piece)
 
       expect(track_piece).to be_attached
     end
 
     it 'occupies preceding track pieces corresponding to its length' do
-      track_pieces = create_looped_track_pieces(5)
-
       subject.attach_to_track_piece(track_pieces.first)
 
       expect(track_pieces[0]).to be_attached
@@ -37,8 +38,6 @@ describe Blaine::Train do
       let(:direction) { :counterclockwise }
 
       it 'occupies the tracks in the opposite direction' do
-      track_pieces = create_looped_track_pieces(5)
-
       subject.attach_to_track_piece(track_pieces.first)
 
       expect(track_pieces[-1]).to_not be_attached
@@ -53,7 +52,6 @@ describe Blaine::Train do
   describe '#move_forward' do
     context 'when the direction is clockwise' do
       it 'occupies the set of track pieces one unit ahead' do
-        track_pieces = create_looped_track_pieces(5)
         subject.attach_to_track_piece(track_pieces.first)
 
         subject.move_forward
@@ -69,7 +67,6 @@ describe Blaine::Train do
       let(:direction) { :counterclockwise }
 
       it 'moves the other way' do
-        track_pieces = create_looped_track_pieces(5)
         subject.attach_to_track_piece(track_pieces.first)
 
         subject.move_forward
@@ -82,48 +79,62 @@ describe Blaine::Train do
     end
 
     context 'when the train is attached to a station' do
-      it 'does\'nt move the first time' do
-        track_pieces = create_looped_track_pieces_with_station(5)
-        subject.attach_to_track_piece(track_pieces.first)
+      let(:track_pieces_with_station) { create_looped_track_pieces_with_station(5) }
 
-        subject.move_forward
-
-        expect(track_pieces[1]).to_not be_attached
-        expect(track_pieces[0]).to be_attached
-        expect(track_pieces[-1]).to be_attached
-        expect(track_pieces[-2]).to be_attached
-        expect(track_pieces[-3]).to_not be_attached
-      end
-
-      it 'moves after as many times as the length of train' do
-        track_pieces = create_looped_track_pieces_with_station(5)
-        subject.attach_to_track_piece(track_pieces.first)
-
-        subject.move_forward
-        subject.move_forward
-        subject.move_forward
-
-        subject.move_forward
-
-        expect(track_pieces[1]).to be_attached
-        expect(track_pieces[0]).to be_attached
-        expect(track_pieces[-1]).to be_attached
-        expect(track_pieces[-2]).to_not be_attached
-      end
-
-      context 'given an express train' do
-        let(:express) { true }
-
-        it 'doesn\'t wait at the station' do
-          track_pieces = create_looped_track_pieces_with_station(5)
-          subject.attach_to_track_piece(track_pieces.first)
+      context 'when it is the first move of the train' do
+        it 'does not wait at the station' do
+          subject.attach_to_track_piece(track_pieces_with_station.first)
 
           subject.move_forward
 
-          expect(track_pieces[1]).to be_attached
-          expect(track_pieces[0]).to be_attached
-          expect(track_pieces[-1]).to be_attached
-          expect(track_pieces[-2]).to_not be_attached
+          expect(track_pieces_with_station[1]).to be_attached
+          expect(track_pieces_with_station[0]).to be_attached
+          expect(track_pieces_with_station[-1]).to be_attached
+          expect(track_pieces_with_station[-2]).to_not be_attached
+        end
+      end
+
+      context 'when the arrives at a station after it\'s first move' do
+        before do
+          subject.attach_to_track_piece(track_pieces_with_station.last)
+        end
+
+        it 'does\'nt move the first time' do
+          subject.move_forward
+          subject.move_forward
+
+          expect(track_pieces_with_station[1]).to_not be_attached
+          expect(track_pieces_with_station[0]).to be_attached
+          expect(track_pieces_with_station[-1]).to be_attached
+          expect(track_pieces_with_station[-2]).to be_attached
+          expect(track_pieces_with_station[-3]).to_not be_attached
+        end
+
+        it 'moves after as many times as the length of train' do
+          subject.move_forward
+          subject.move_forward
+          subject.move_forward
+
+          subject.move_forward
+
+          expect(track_pieces_with_station[1]).to be_attached
+          expect(track_pieces_with_station[0]).to be_attached
+          expect(track_pieces_with_station[-1]).to be_attached
+          expect(track_pieces_with_station[-2]).to_not be_attached
+        end
+
+        context 'given an express train' do
+          let(:express) { true }
+
+          it 'doesn\'t wait at the station' do
+            subject.move_forward
+            subject.move_forward
+
+            expect(track_pieces_with_station[1]).to be_attached
+            expect(track_pieces_with_station[0]).to be_attached
+            expect(track_pieces_with_station[-1]).to be_attached
+            expect(track_pieces_with_station[-2]).to_not be_attached
+          end
         end
       end
     end
