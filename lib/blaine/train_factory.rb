@@ -5,7 +5,6 @@ module Blaine
     InvalidString = Class.new(StandardError)
 
     EXPRESS_TRAIN = 'X'.freeze
-
     VALID_STRING = /(?:\A[A-Z][a-z]*\z)|(?:\A[a-z]+[A-Z]\z)/
 
     module_function
